@@ -386,7 +386,6 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
                 : $str;
         }
 
-
         /**
          * Ellipsize String - This function will strip tags from a string, split it at its max_length and ellipsize
          *
