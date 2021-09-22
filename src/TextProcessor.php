@@ -43,6 +43,141 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
         }
 
         /**
+         * Word Wrap
+         *
+         * Wraps text at the specified character. Maintains the integrity of words.
+         * Anything placed between {unwrap}{/unwrap} will not be word wrapped, nor
+         * will URLs.
+         *
+         * @param string $str     the text string
+         * @param int    $charlim = 76    the number of characters to wrap at
+         *
+         * @return    string
+         */
+        public static function wordWrap($str = '', $charlim = 76)
+        {
+            // Set the character limit
+            is_numeric($charlim) or $charlim = 76;
+
+            // Reduce multiple spaces
+            $str = preg_replace('| +|', ' ', $str);
+
+            // Standardize newlines
+            if (strpos($str, "\r") !== false) {
+                $str = str_replace(["\r\n", "\r"], "\n", $str);
+            }
+
+            // If the current word is surrounded by {unwrap} tags we'll
+            // strip the entire chunk and replace it with a marker.
+            $unwrap        = [];
+            $patternUnWrap = '|\{unwrap\}(.+?)\{/unwrap\}|s';
+            if (preg_match_all($patternUnWrap, $str, $matches)) {
+                for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
+                    $unwrap[] = $matches[1][$i];
+                    $str      = str_replace($matches[0][$i], '{{unwrapped' . $i . '}}', $str);
+                }
+            }
+
+            // Use PHP's native function to do the initial wordwrap.
+            // We set the cut flag to FALSE so that any individual words that are
+            // too long get left alone. In the next step we'll deal with them.
+            $str = wordwrap($str, $charlim, "\n", false);
+
+            // Split the string into individual lines of text and cycle through them
+            $output = '';
+            foreach (explode("\n", $str) as $line) {
+                // Is the line within the allowed character count?
+                // If so we'll join it to the output and continue
+                if (mb_strlen($line) <= $charlim) {
+                    $output .= $line . "\n";
+                    continue;
+                }
+
+                $temp = '';
+                while (mb_strlen($line) > $charlim) {
+                    // If the over-length word is a URL we won't wrap it
+                    $charlimPatter = '!\[url.+\]|://|www\.!';
+                    if (preg_match($charlimPatter, $line)) {
+                        break;
+                    }
+
+                    // Trim the word down
+                    $temp .= mb_substr($line, 0, $charlim - 1);
+                    $line = mb_substr($line, $charlim - 1);
+                }
+
+                // If $temp contains data it means we had to split up an over-length
+                // word into smaller chunks so we'll add it back to our current line
+                if ($temp !== '') {
+                    $output .= $temp . "\n" . $line . "\n";
+                } else {
+                    $output .= $line . "\n";
+                }
+            }
+
+            // Put our markers back
+            if (count($unwrap) > 0) {
+                foreach ($unwrap as $key => $val) {
+                    $output = str_replace('{{unwrapped' . $key . '}}', $val, $output);
+                }
+            }
+
+            return $output;
+        }
+
+        /**
+         * Word Censoring Function
+         *
+         * Supply a string and an array of disallowed words and any
+         * matched words will be converted to #### or to the replacement
+         * word you've submitted.
+         *
+         * @param string       $str         the text string
+         * @param string|array $censored    the array of censored words
+         * @param string       $replacement the optional replacement value
+         *
+         * @return    string
+         */
+        public static function wordCensor($str = '', $censored = '', $replacement = '')
+        {
+            if (!is_array($censored)) {
+                return $str;
+            }
+
+            $str = ' ' . $str . ' ';
+
+            // \w, \b and a few others do not match on a unicode character
+            // set for performance reasons. As a result words like über
+            // will not match on a word boundary. Instead, we'll assume that
+            // a bad word will be bookeneded by any of these characters.
+            $delim = '[-_\'\"`(){}<>\[\]|!?@#%&,.:;^~*+=\/ 0-9\n\r\t]';
+
+            foreach ($censored as $badword) {
+                $badword = str_replace('\*', '\w*?', preg_quote($badword, '/'));
+                if ($replacement !== '') {
+                    $str = preg_replace(
+                        "/({$delim})(" . $badword . ")({$delim})/i",
+                        "\\1{$replacement}\\3",
+                        $str
+                    );
+                } elseif (preg_match_all("/{$delim}(" . $badword . "){$delim}/i", $str, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
+                    $matches = $matches[1];
+                    for ($i = count($matches) - 1; $i >= 0; $i--) {
+                        $length = strlen($matches[$i][0]);
+                        $str    = substr_replace(
+                            $str,
+                            str_repeat('#', $length),
+                            $matches[$i][1],
+                            $length
+                        );
+                    }
+                }
+            }
+
+            return trim($str);
+        }
+
+        /**
          * Character Limiter
          *
          * Limits the string based on the character count.  Preserves complete words
@@ -180,58 +315,6 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
         }
 
         /**
-         * Word Censoring Function
-         *
-         * Supply a string and an array of disallowed words and any
-         * matched words will be converted to #### or to the replacement
-         * word you've submitted.
-         *
-         * @param string       $str         the text string
-         * @param string|array $censored    the array of censored words
-         * @param string       $replacement the optional replacement value
-         *
-         * @return    string
-         */
-        public static function wordCensor($str = '', $censored = '', $replacement = '')
-        {
-            if (!is_array($censored)) {
-                return $str;
-            }
-
-            $str = ' ' . $str . ' ';
-
-            // \w, \b and a few others do not match on a unicode character
-            // set for performance reasons. As a result words like über
-            // will not match on a word boundary. Instead, we'll assume that
-            // a bad word will be bookeneded by any of these characters.
-            $delim = '[-_\'\"`(){}<>\[\]|!?@#%&,.:;^~*+=\/ 0-9\n\r\t]';
-
-            foreach ($censored as $badword) {
-                $badword = str_replace('\*', '\w*?', preg_quote($badword, '/'));
-                if ($replacement !== '') {
-                    $str = preg_replace(
-                        "/({$delim})(" . $badword . ")({$delim})/i",
-                        "\\1{$replacement}\\3",
-                        $str
-                    );
-                } elseif (preg_match_all("/{$delim}(" . $badword . "){$delim}/i", $str, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
-                    $matches = $matches[1];
-                    for ($i = count($matches) - 1; $i >= 0; $i--) {
-                        $length = strlen($matches[$i][0]);
-                        $str    = substr_replace(
-                            $str,
-                            str_repeat('#', $length),
-                            $matches[$i][1],
-                            $length
-                        );
-                    }
-                }
-            }
-
-            return trim($str);
-        }
-
-        /**
          * Code Highlighter
          *
          * Colorizes code strings
@@ -303,87 +386,70 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
                 : $str;
         }
 
+
         /**
-         * Word Wrap
+         * Ellipsize String - This function will strip tags from a string, split it at its max_length and ellipsize
          *
-         * Wraps text at the specified character. Maintains the integrity of words.
-         * Anything placed between {unwrap}{/unwrap} will not be word wrapped, nor
-         * will URLs.
+         * @param string    string to ellipsize
+         * @param int    max length of string
+         * @param mixed    int (1|0) or float, .5, .2, etc for position to split
+         * @param string    ellipsis ; Default '...'
          *
-         * @param string $str     the text string
-         * @param int    $charlim = 76    the number of characters to wrap at
+         * @return string
+         * @author   : 713uk13m <dev@nguyenanhung.com>
+         * @copyright: 713uk13m <dev@nguyenanhung.com>
+         * @time     : 09/22/2021 35:20
+         */
+        public static function ellipsize($str, $max_length, $position = 1, $ellipsis = '&hellip;')
+        {
+            // Strip tags
+            $str = trim(strip_tags($str));
+
+            // Is the string long enough to ellipsize?
+            if (mb_strlen($str) <= $max_length) {
+                return $str;
+            }
+
+            $beg      = mb_substr($str, 0, floor($max_length * $position));
+            $position = ($position > 1) ? 1 : $position;
+
+            if ($position === 1) {
+                $end = mb_substr($str, 0, -($max_length - mb_strlen($beg)));
+            } else {
+                $end = mb_substr($str, -($max_length - mb_strlen($beg)));
+            }
+
+            return $beg . $ellipsis . $end;
+        }
+
+        /**
+         * Convert Accented Foreign Characters to ASCII
+         *
+         * @param string $str Input string
          *
          * @return    string
          */
-        public static function wordWrap($str = '', $charlim = 76)
+        public static function convertAccentedCharacters($str)
         {
-            // Set the character limit
-            is_numeric($charlim) or $charlim = 76;
+            static $array_from, $array_to;
 
-            // Reduce multiple spaces
-            $str = preg_replace('| +|', ' ', $str);
+            if (!is_array($array_from)) {
+                $foreign_characters = [];
+                if (file_exists(__DIR__ . '/../data/foreign_chars.php')) {
+                    $foreign_characters = include __DIR__ . '/../data/foreign_chars.php';
+                }
+                if (empty($foreign_characters) || !is_array($foreign_characters)) {
+                    $array_from = [];
+                    $array_to   = [];
 
-            // Standardize newlines
-            if (strpos($str, "\r") !== false) {
-                $str = str_replace(["\r\n", "\r"], "\n", $str);
+                    return $str;
+                }
+
+                $array_from = array_keys($foreign_characters);
+                $array_to   = array_values($foreign_characters);
             }
 
-            // If the current word is surrounded by {unwrap} tags we'll
-            // strip the entire chunk and replace it with a marker.
-            $unwrap        = [];
-            $patternUnWrap = '|\{unwrap\}(.+?)\{/unwrap\}|s';
-            if (preg_match_all($patternUnWrap, $str, $matches)) {
-                for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
-                    $unwrap[] = $matches[1][$i];
-                    $str      = str_replace($matches[0][$i], '{{unwrapped' . $i . '}}', $str);
-                }
-            }
-
-            // Use PHP's native function to do the initial wordwrap.
-            // We set the cut flag to FALSE so that any individual words that are
-            // too long get left alone. In the next step we'll deal with them.
-            $str = wordwrap($str, $charlim, "\n", false);
-
-            // Split the string into individual lines of text and cycle through them
-            $output = '';
-            foreach (explode("\n", $str) as $line) {
-                // Is the line within the allowed character count?
-                // If so we'll join it to the output and continue
-                if (mb_strlen($line) <= $charlim) {
-                    $output .= $line . "\n";
-                    continue;
-                }
-
-                $temp = '';
-                while (mb_strlen($line) > $charlim) {
-                    // If the over-length word is a URL we won't wrap it
-                    $charlimPatter = '!\[url.+\]|://|www\.!';
-                    if (preg_match($charlimPatter, $line)) {
-                        break;
-                    }
-
-                    // Trim the word down
-                    $temp .= mb_substr($line, 0, $charlim - 1);
-                    $line = mb_substr($line, $charlim - 1);
-                }
-
-                // If $temp contains data it means we had to split up an over-length
-                // word into smaller chunks so we'll add it back to our current line
-                if ($temp !== '') {
-                    $output .= $temp . "\n" . $line . "\n";
-                } else {
-                    $output .= $line . "\n";
-                }
-            }
-
-            // Put our markers back
-            if (count($unwrap) > 0) {
-                foreach ($unwrap as $key => $val) {
-                    $output = str_replace('{{unwrapped' . $key . '}}', $val, $output);
-                }
-            }
-
-            return $output;
+            return preg_replace($array_from, $array_to, $str);
         }
     }
 }
