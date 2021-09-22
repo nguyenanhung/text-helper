@@ -11,6 +11,13 @@
 namespace nguyenanhung\Libraries\Text;
 
 if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
+    /**
+     * Class TextProcessor
+     *
+     * @package   nguyenanhung\Libraries\Text
+     * @author    713uk13m <dev@nguyenanhung.com>
+     * @copyright 713uk13m <dev@nguyenanhung.com>
+     */
     class TextProcessor
     {
         /**
