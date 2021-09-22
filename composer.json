@@ -1,0 +1,33 @@
+{
+    "type": "library",
+    "name": "nguyenanhung/text-helper",
+    "description": "Text Helper, basic, simple and light",
+    "keywords": [
+        "helper",
+        "text",
+        "php"
+    ],
+    "homepage": "https://github.com/nguyenanhung/text-helper",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "Nguyen An Hung",
+            "email": "dev@nguyenanhung.com",
+            "homepage": "https://nguyenanhung.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.6",
+        "ext-mbstring": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "nguyenanhung\\Libraries\\Text\\": "src/"
+        },
+        "files": [
+            "helpers/ci_text_helper.php"
+        ]
+    }
+}
