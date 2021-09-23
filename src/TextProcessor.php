@@ -34,7 +34,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          * @time  : 9/29/18 11:25
          *
          */
-        public static function wordLimiter($str = '', $limit = 100, $end_char = '&#8230;')
+        public static function wordLimiter($str = '', $limit = 100, $end_char = '&#8230;'): string
         {
             if (trim($str) === '') {
                 return $str;
@@ -61,7 +61,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          *
          * @return    string
          */
-        public static function wordWrap($str = '', $charlim = 76)
+        public static function wordWrap(string $str = '', int $charlim = 76): string
         {
             // Set the character limit
             is_numeric($charlim) or $charlim = 76;
@@ -145,7 +145,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          *
          * @return    string
          */
-        public static function wordCensor($str = '', $censored = '', $replacement = '')
+        public static function wordCensor(string $str = '', $censored = '', string $replacement = ''): string
         {
             if (!is_array($censored)) {
                 return $str;
@@ -232,7 +232,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          *
          * @return    string
          */
-        public static function asciiToEntities($str = '')
+        public static function asciiToEntities(string $str = ''): string
         {
             $out    = '';
             $length = defined('MB_OVERLOAD_STRING')
@@ -287,7 +287,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          *
          * @return    string
          */
-        public static function entitiesToAscii($str = '', $all = true)
+        public static function entitiesToAscii($str = '', $all = true): string
         {
             $pattern = '/\&#(\d+)\;/';
             if (preg_match_all($pattern, $str, $matches)) {
@@ -330,7 +330,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          *
          * @return    string
          */
-        public static function highlightCode($str = '')
+        public static function highlightCode($str = ''): string
         {
             /* The highlight string function encodes and highlights
              * brackets so we need them to start raw.
@@ -384,7 +384,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          *
          * @return    string
          */
-        public static function highlightPhrase($str = '', $phrase = '', $tag_open = '<mark>', $tag_close = '</mark>')
+        public static function highlightPhrase(string $str = '', string $phrase = '', string $tag_open = '<mark>', string $tag_close = '</mark>'): string
         {
             define('UTF8_ENABLED', true);
 
@@ -406,7 +406,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          * @copyright: 713uk13m <dev@nguyenanhung.com>
          * @time     : 09/22/2021 35:20
          */
-        public static function ellipsize($str, $max_length, $position = 1, $ellipsis = '&hellip;')
+        public static function ellipsize($str, $max_length, $position = 1, $ellipsis = '&hellip;'): string
         {
             // Strip tags
             $str = trim(strip_tags($str));
@@ -435,7 +435,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          *
          * @return    string
          */
-        public static function convertAccentedCharacters($str)
+        public static function convertAccentedCharacters(string $str): string
         {
             static $array_from, $array_to;
 

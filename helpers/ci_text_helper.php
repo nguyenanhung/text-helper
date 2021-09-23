@@ -59,7 +59,7 @@ if (!function_exists('word_limiter')) {
      *
      * @return    string
      */
-    function word_limiter($str, $limit = 100, $end_char = '&#8230;')
+    function word_limiter($str, $limit = 100, $end_char = '&#8230;'): string
     {
         if (trim($str) === '') {
             return $str;
@@ -90,7 +90,7 @@ if (!function_exists('character_limiter')) {
      *
      * @return    string
      */
-    function character_limiter($str, $n = 500, $end_char = '&#8230;')
+    function character_limiter($str, $n = 500, $end_char = '&#8230;'): string
     {
         if (mb_strlen($str) < $n) {
             return $str;
@@ -130,7 +130,7 @@ if (!function_exists('ascii_to_entities')) {
      *
      * @return    string
      */
-    function ascii_to_entities($str)
+    function ascii_to_entities(string $str): string
     {
         $out    = '';
         $length = defined('MB_OVERLOAD_STRING')
@@ -189,7 +189,7 @@ if (!function_exists('entities_to_ascii')) {
      *
      * @return    string
      */
-    function entities_to_ascii($str, $all = true)
+    function entities_to_ascii($str, $all = true): string
     {
         if (preg_match_all('/\&#(\d+)\;/', $str, $matches)) {
             for ($i = 0, $s = count($matches[0]); $i < $s; $i++) {
@@ -239,7 +239,7 @@ if (!function_exists('word_censor')) {
      *
      * @return    string
      */
-    function word_censor($str, $censored, $replacement = '')
+    function word_censor($str, $censored, $replacement = ''): string
     {
         if (!is_array($censored)) {
             return $str;
@@ -291,7 +291,7 @@ if (!function_exists('highlight_code')) {
      *
      * @return    string
      */
-    function highlight_code($str)
+    function highlight_code($str): string
     {
         /* The highlight string function encodes and highlights
          * brackets so we need them to start raw.
@@ -349,7 +349,7 @@ if (!function_exists('highlight_phrase')) {
      *
      * @return    string
      */
-    function highlight_phrase($str, $phrase, $tag_open = '<mark>', $tag_close = '</mark>')
+    function highlight_phrase(string $str, string $phrase, string $tag_open = '<mark>', string $tag_close = '</mark>'): string
     {
         return ($str !== '' && $phrase !== '')
             ? preg_replace('/(' . preg_quote($phrase, '/') . ')/i' . (true ? 'u' : ''), $tag_open . '\\1' . $tag_close, $str)
@@ -367,7 +367,7 @@ if (!function_exists('convert_accented_characters')) {
      *
      * @return    string
      */
-    function convert_accented_characters($str)
+    function convert_accented_characters(string $str): string
     {
         static $array_from, $array_to;
 
@@ -406,7 +406,7 @@ if (!function_exists('word_wrap')) {
      *
      * @return    string
      */
-    function word_wrap($str, $charlim = 76)
+    function word_wrap(string $str, int $charlim = 76): string
     {
         // Set the character limit
         is_numeric($charlim) or $charlim = 76;
@@ -491,7 +491,7 @@ if (!function_exists('ellipsize')) {
      *
      * @return    string    ellipsized string
      */
-    function ellipsize($str, $max_length, $position = 1, $ellipsis = '&hellip;')
+    function ellipsize($str, $max_length, $position = 1, $ellipsis = '&hellip;'): string
     {
         // Strip tags
         $str = trim(strip_tags($str));

@@ -7,7 +7,7 @@
 | conversion used by the Text helper
 |
 */
-return array(
+return [
     '/ä|æ|ǽ/'                                                     => 'ae',
     '/ö|œ/'                                                       => 'oe',
     '/ü/'                                                         => 'ue',
@@ -98,4 +98,4 @@ return array(
     '/ю/'                                                         => 'yu',
     '/Я/'                                                         => 'Ya',
     '/я/'                                                         => 'ya'
-);
+];
