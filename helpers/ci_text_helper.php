@@ -132,7 +132,7 @@ if (!function_exists('ascii_to_entities')) {
      */
     function ascii_to_entities(string $str): string
     {
-        $out    = '';
+        $out = '';
         $length = defined('MB_OVERLOAD_STRING')
             ? mb_strlen($str, '8bit') - 1
             : strlen($str) - 1;
@@ -145,7 +145,7 @@ if (!function_exists('ascii_to_entities')) {
                     fair that we output that entity and restart $temp before continuing. -Paul
                 */
                 if (count($temp) === 1) {
-                    $out   .= '&#' . array_shift($temp) . ';';
+                    $out .= '&#' . array_shift($temp) . ';';
                     $count = 1;
                 }
 
@@ -162,9 +162,9 @@ if (!function_exists('ascii_to_entities')) {
                         ? (($temp[0] % 16) * 4096) + (($temp[1] % 64) * 64) + ($temp[2] % 64)
                         : (($temp[0] % 32) * 64) + ($temp[1] % 64);
 
-                    $out   .= '&#' . $number . ';';
+                    $out .= '&#' . $number . ';';
                     $count = 1;
-                    $temp  = [];
+                    $temp = [];
                 } // If this is the last iteration, just output whatever we have
                 elseif ($i === $length) {
                     $out .= '&#' . implode(';', $temp) . ';';
@@ -194,7 +194,7 @@ if (!function_exists('entities_to_ascii')) {
         if (preg_match_all('/\&#(\d+)\;/', $str, $matches)) {
             for ($i = 0, $s = count($matches[0]); $i < $s; $i++) {
                 $digits = $matches[1][$i];
-                $out    = '';
+                $out = '';
 
                 if ($digits < 128) {
                     $out .= chr($digits);
@@ -265,7 +265,7 @@ if (!function_exists('word_censor')) {
                 $matches = $matches[1];
                 for ($i = count($matches) - 1; $i >= 0; $i--) {
                     $length = strlen($matches[$i][0]);
-                    $str    = substr_replace(
+                    $str = substr_replace(
                         $str,
                         str_repeat('#', $length),
                         $matches[$i][1],
@@ -359,6 +359,27 @@ if (!function_exists('highlight_phrase')) {
 
 // ------------------------------------------------------------------------
 
+if (!function_exists('highlight_keyword')) {
+    /**
+     * Keyword Highlighter
+     *
+     * Highlights a keyword within a text string
+     *
+     * @param string $string    the text string
+     * @param string $keyword   the phrase you'd like to highlight
+     * @param string $tag_open  the opening tag to precede the phrase with
+     * @param string $tag_close the closing tag to end the phrase with
+     *
+     * @return    string
+     */
+    function highlight_keyword(string $string, string $keyword, string $tag_open = '<mark>', string $tag_close = '</mark>'): string
+    {
+        return \nguyenanhung\Libraries\Text\TextProcessor::highlightKeyword($string, $keyword, $tag_open, $tag_close);
+    }
+}
+
+// ------------------------------------------------------------------------
+
 if (!function_exists('convert_accented_characters')) {
     /**
      * Convert Accented Foreign Characters to ASCII
@@ -378,13 +399,13 @@ if (!function_exists('convert_accented_characters')) {
             }
             if (empty($foreign_characters) || !is_array($foreign_characters)) {
                 $array_from = [];
-                $array_to   = [];
+                $array_to = [];
 
                 return $str;
             }
 
             $array_from = array_keys($foreign_characters);
-            $array_to   = array_values($foreign_characters);
+            $array_to = array_values($foreign_characters);
         }
 
         return preg_replace($array_from, $array_to, $str);
@@ -425,7 +446,7 @@ if (!function_exists('word_wrap')) {
         if (preg_match_all('|\{unwrap\}(.+?)\{/unwrap\}|s', $str, $matches)) {
             for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
                 $unwrap[] = $matches[1][$i];
-                $str      = str_replace($matches[0][$i], '{{unwrapped' . $i . '}}', $str);
+                $str = str_replace($matches[0][$i], '{{unwrapped' . $i . '}}', $str);
             }
         }
 
@@ -501,7 +522,7 @@ if (!function_exists('ellipsize')) {
             return $str;
         }
 
-        $beg      = mb_substr($str, 0, floor($max_length * $position));
+        $beg = mb_substr($str, 0, floor($max_length * $position));
         $position = ($position > 1) ? 1 : $position;
 
         if ($position === 1) {
