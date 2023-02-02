@@ -10,7 +10,7 @@
 
 namespace nguyenanhung\Libraries\Text;
 
-if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
+if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
     /**
      * Class TextProcessor
      *
@@ -25,16 +25,16 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          *
          * Limits a string to X number of words.
          *
-         * @param string
-         * @param int
-         * @param string    the end character. Usually an ellipsis
+         * @param string $str
+         * @param int    $limit
+         * @param string $end_char the end character. Usually an ellipsis
          *
          * @return    string
          * @author: 713uk13m <dev@nguyenanhung.com>
          * @time  : 9/29/18 11:25
          *
          */
-        public static function wordLimiter($str = '', $limit = 100, $end_char = '&#8230;'): string
+        public static function wordLimiter(string $str = '', int $limit = 100, string $end_char = '&#8230;'): string
         {
             if (trim($str) === '') {
                 return $str;
@@ -76,12 +76,12 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
 
             // If the current word is surrounded by {unwrap} tags we'll
             // strip the entire chunk and replace it with a marker.
-            $unwrap        = [];
+            $unwrap = [];
             $patternUnWrap = '|\{unwrap\}(.+?)\{/unwrap\}|s';
             if (preg_match_all($patternUnWrap, $str, $matches)) {
                 for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
                     $unwrap[] = $matches[1][$i];
-                    $str      = str_replace($matches[0][$i], '{{unwrapped' . $i . '}}', $str);
+                    $str = str_replace($matches[0][$i], '{{unwrapped' . $i . '}}', $str);
                 }
             }
 
@@ -139,7 +139,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          * matched words will be converted to #### or to the replacement
          * word you've submitted.
          *
-         * @param string       $str         the text string
+         * @param string|array $str         the text string
          * @param string|array $censored    the array of censored words
          * @param string       $replacement the optional replacement value
          *
@@ -171,7 +171,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
                     $matches = $matches[1];
                     for ($i = count($matches) - 1; $i >= 0; $i--) {
                         $length = strlen($matches[$i][0]);
-                        $str    = substr_replace(
+                        $str = substr_replace(
                             $str,
                             str_repeat('#', $length),
                             $matches[$i][1],
@@ -190,13 +190,13 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          * Limits the string based on the character count.  Preserves complete words
          * so the character count may not be exactly as specified.
          *
-         * @param string
-         * @param int
-         * @param string    the end character. Usually an ellipsis
+         * @param string $str
+         * @param int    $n
+         * @param string $end_char the end character. Usually an ellipsis
          *
          * @return    string
          */
-        public static function characterLimiter($str = '', $n = 500, $end_char = '&#8230;')
+        public static function characterLimiter(string $str = '', int $n = 500, string $end_char = '&#8230;')
         {
             if (mb_strlen($str) < $n) {
                 return $str;
@@ -234,7 +234,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          */
         public static function asciiToEntities(string $str = ''): string
         {
-            $out    = '';
+            $out = '';
             $length = defined('MB_OVERLOAD_STRING')
                 ? mb_strlen($str, '8bit') - 1
                 : strlen($str) - 1;
@@ -247,7 +247,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
                         fair that we output that entity and restart $temp before continuing. -Paul
                     */
                     if (count($temp) === 1) {
-                        $out   .= '&#' . array_shift($temp) . ';';
+                        $out .= '&#' . array_shift($temp) . ';';
                         $count = 1;
                     }
 
@@ -264,9 +264,9 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
                             ? (($temp[0] % 16) * 4096) + (($temp[1] % 64) * 64) + ($temp[2] % 64)
                             : (($temp[0] % 32) * 64) + ($temp[1] % 64);
 
-                        $out   .= '&#' . $number . ';';
+                        $out .= '&#' . $number . ';';
                         $count = 1;
-                        $temp  = [];
+                        $temp = [];
                     } // If this is the last iteration, just output whatever we have
                     elseif ($i === $length) {
                         $out .= '&#' . implode(';', $temp) . ';';
@@ -282,18 +282,18 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          *
          * Converts character entities back to ASCII
          *
-         * @param string
-         * @param bool
+         * @param string $str
+         * @param bool   $all
          *
          * @return    string
          */
-        public static function entitiesToAscii($str = '', $all = true): string
+        public static function entitiesToAscii(string $str = '', bool $all = true): string
         {
             $pattern = '/\&#(\d+)\;/';
             if (preg_match_all($pattern, $str, $matches)) {
                 for ($i = 0, $s = count($matches[0]); $i < $s; $i++) {
                     $digits = $matches[1][$i];
-                    $out    = '';
+                    $out = '';
 
                     if ($digits < 128) {
                         $out .= chr($digits);
@@ -326,7 +326,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
          *
          * Colorizes code strings
          *
-         * @param string    the text string
+         * @param string $str the text string
          *
          * @return    string
          */
@@ -394,19 +394,71 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
         }
 
         /**
+         * Keyword Highlighter
+         *
+         * Highlights a keyword within a text string
+         *
+         * @param string $string    the text string
+         * @param string $keyword   the phrase you'd like to highlight
+         * @param string $tag_open  the opening tag to precede the phrase with
+         * @param string $tag_close the closing tag to end the phrase with
+         *
+         * @return    string
+         */
+        public static function highlightKeyword(string $string, string $keyword, string $tag_open = '<mark>', string $tag_close = '</mark>'): string
+        {
+            $unwanted_array = array(
+                "Á" => "á", "À" => "à", "Ả" => "ả", "Ã" => "ã", "Ạ" => "ạ", "Ă" => "ă", "Ắ" => "ắ", "Ằ" => "ằ",
+                "Ặ" => "ặ", "Â" => "â", "ẩ" => "ẩ", "Ầ" => "ầ", "Ậ" => "Ậ", "Ẫ" => "ẫ", "Ấ" => "ấ", "Ê" => "ê", "Ế" => "ế",
+                "Ễ" => "ễ", "Ề" => "ề", "Ể" => "ể", "Ệ" => "Ệ", "Í" => "í", "Ị" => "ị", "Ỉ" => "ỉ", "Ì" => "ì", "Ĩ" => "ĩ",
+                "Ô" => "ô", "Ồ" => "ồ", "Ổ" => "ổ", "Ộ" => "ộ", "Ố" => "Ố", "Ỗ" => "ỗ", "Ò" => "ò", "Ó" => "ó", "Ỏ" => "ỏ",
+                "Ọ" => "ọ", "Õ" => "õ", "Ơ" => "ơ", "Ở" => "ở", "Ờ" => "ờ", "Ớ" => "ớ", "Ợ" => "ợ", "Ỡ" => "ỡ", "Ũ" => "u",
+                "Ù" => "ù", "Ú" => "ú", "Ủ" => "ủ", "Ụ" => "ụ", "Ư" => "ư", "Ử" => "ử", "Ữ" => "ữ", "Ừ" => "ừ",
+                "Ứ" => "Ứ", "Ỷ" => "ỷ", "Ý" => "ý", "Ỳ" => "ỳ", "Ỵ" => "y", "Ỹ" => "ỹ"
+                //    "ế"=>"e","ắ"=>"a","V"=>"v"
+            );
+
+            if (!empty($keyword)) {
+                $text_search = str_replace('%', ' ', $keyword);
+                $arr_text_search = explode(" ", $text_search);
+                if ($arr_text_search[0] === '') {
+                    $arr_text_search[0] = $arr_text_search[1];
+                    unset($arr_text_search[1]);
+                }
+
+                // $arr = explode(" ", $string);
+                // $text_replace = "";
+
+                $str = strtr($string, $unwanted_array);
+                $str = strtolower($str);
+                for ($j = 0; $j <= count($arr_text_search) - 1; $j++) {
+                    $ki_tu_can_tim_convert = strtolower(strtr($arr_text_search[$j], $unwanted_array));
+                    if (stripos($str, strtolower($ki_tu_can_tim_convert)) > 0) {
+                        $ki_tu_chuoi_can_xu_ly = substr($string, stripos($string, $ki_tu_can_tim_convert), strlen($arr_text_search[$j]));
+                        if (strpos($tag_open, $ki_tu_chuoi_can_xu_ly) === false || strpos($tag_close, $ki_tu_chuoi_can_xu_ly) === false) {
+                            $string = str_replace($ki_tu_chuoi_can_xu_ly, $tag_open . $ki_tu_chuoi_can_xu_ly . $tag_close, $string);
+                        }
+                    }
+                }
+            }
+
+            return $string;
+        }
+
+        /**
          * Ellipsize String - This function will strip tags from a string, split it at its max_length and ellipsize
          *
-         * @param string    string to ellipsize
-         * @param int    max length of string
-         * @param mixed    int (1|0) or float, .5, .2, etc for position to split
-         * @param string    ellipsis ; Default '...'
+         * @param string $str        string to ellipsize
+         * @param int    $max_length max length of string
+         * @param mixed  $position   int (1|0) or float, .5, .2, etc for position to split
+         * @param string $ellipsis   ellipsis ; Default '...'
          *
          * @return string
          * @author   : 713uk13m <dev@nguyenanhung.com>
          * @copyright: 713uk13m <dev@nguyenanhung.com>
          * @time     : 09/22/2021 35:20
          */
-        public static function ellipsize($str, $max_length, $position = 1, $ellipsis = '&hellip;'): string
+        public static function ellipsize(string $str, int $max_length, $position = 1, $ellipsis = '&hellip;'): string
         {
             // Strip tags
             $str = trim(strip_tags($str));
@@ -416,7 +468,7 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
                 return $str;
             }
 
-            $beg      = mb_substr($str, 0, floor($max_length * $position));
+            $beg = mb_substr($str, 0, floor($max_length * $position));
             $position = ($position > 1) ? 1 : $position;
 
             if ($position === 1) {
@@ -446,13 +498,13 @@ if (!class_exists('nguyenanhung\Libraries\Text\TextProcessor')) {
                 }
                 if (empty($foreign_characters) || !is_array($foreign_characters)) {
                     $array_from = [];
-                    $array_to   = [];
+                    $array_to = [];
 
                     return $str;
                 }
 
                 $array_from = array_keys($foreign_characters);
-                $array_to   = array_values($foreign_characters);
+                $array_to = array_values($foreign_characters);
             }
 
             return preg_replace($array_from, $array_to, $str);
