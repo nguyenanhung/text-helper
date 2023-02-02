@@ -53,9 +53,9 @@ if (!function_exists('word_limiter')) {
      *
      * Limits a string to X number of words.
      *
-     * @param string
-     * @param int
-     * @param string    the end character. Usually an ellipsis
+     * @param string $str
+     * @param int    $limit
+     * @param string $end_char the end character. Usually an ellipsis
      *
      * @return    string
      */
@@ -84,9 +84,9 @@ if (!function_exists('character_limiter')) {
      * Limits the string based on the character count.  Preserves complete words
      * so the character count may not be exactly as specified.
      *
-     * @param string
-     * @param int
-     * @param string    the end character. Usually an ellipsis
+     * @param string $str
+     * @param int    $n
+     * @param string $end_char the end character. Usually an ellipsis
      *
      * @return    string
      */
@@ -132,11 +132,11 @@ if (!function_exists('ascii_to_entities')) {
      */
     function ascii_to_entities($str)
     {
-        $out    = '';
+        $out = '';
         $length = defined('MB_OVERLOAD_STRING')
             ? mb_strlen($str, '8bit') - 1
             : strlen($str) - 1;
-        for ($i = 0, $count = 1, $temp = []; $i <= $length; $i++) {
+        for ($i = 0, $count = 1, $temp = array(); $i <= $length; $i++) {
             $ordinal = ord($str[$i]);
 
             if ($ordinal < 128) {
@@ -145,7 +145,7 @@ if (!function_exists('ascii_to_entities')) {
                     fair that we output that entity and restart $temp before continuing. -Paul
                 */
                 if (count($temp) === 1) {
-                    $out   .= '&#' . array_shift($temp) . ';';
+                    $out .= '&#' . array_shift($temp) . ';';
                     $count = 1;
                 }
 
@@ -162,9 +162,9 @@ if (!function_exists('ascii_to_entities')) {
                         ? (($temp[0] % 16) * 4096) + (($temp[1] % 64) * 64) + ($temp[2] % 64)
                         : (($temp[0] % 32) * 64) + ($temp[1] % 64);
 
-                    $out   .= '&#' . $number . ';';
+                    $out .= '&#' . $number . ';';
                     $count = 1;
-                    $temp  = [];
+                    $temp = array();
                 } // If this is the last iteration, just output whatever we have
                 elseif ($i === $length) {
                     $out .= '&#' . implode(';', $temp) . ';';
@@ -184,8 +184,8 @@ if (!function_exists('entities_to_ascii')) {
      *
      * Converts character entities back to ASCII
      *
-     * @param string
-     * @param bool
+     * @param string $str
+     * @param bool   $all
      *
      * @return    string
      */
@@ -194,7 +194,7 @@ if (!function_exists('entities_to_ascii')) {
         if (preg_match_all('/\&#(\d+)\;/', $str, $matches)) {
             for ($i = 0, $s = count($matches[0]); $i < $s; $i++) {
                 $digits = $matches[1][$i];
-                $out    = '';
+                $out = '';
 
                 if ($digits < 128) {
                     $out .= chr($digits);
@@ -233,9 +233,9 @@ if (!function_exists('word_censor')) {
      * matched words will be converted to #### or to the replacement
      * word you've submitted.
      *
-     * @param string    the text string
-     * @param string    the array of censored words
-     * @param string    the optional replacement value
+     * @param string|array $str         the text string
+     * @param string|array $censored    the array of censored words
+     * @param string       $replacement the optional replacement value
      *
      * @return    string
      */
@@ -265,7 +265,7 @@ if (!function_exists('word_censor')) {
                 $matches = $matches[1];
                 for ($i = count($matches) - 1; $i >= 0; $i--) {
                     $length = strlen($matches[$i][0]);
-                    $str    = substr_replace(
+                    $str = substr_replace(
                         $str,
                         str_repeat('#', $length),
                         $matches[$i][1],
@@ -287,7 +287,7 @@ if (!function_exists('highlight_code')) {
      *
      * Colorizes code strings
      *
-     * @param string    the text string
+     * @param string $str the text string
      *
      * @return    string
      */
@@ -344,7 +344,7 @@ if (!function_exists('highlight_phrase')) {
      *
      * @param string $str       the text string
      * @param string $phrase    the phrase you'd like to highlight
-     * @param string $tag_open  the openging tag to precede the phrase with
+     * @param string $tag_open  the opening tag to precede the phrase with
      * @param string $tag_close the closing tag to end the phrase with
      *
      * @return    string
@@ -354,6 +354,27 @@ if (!function_exists('highlight_phrase')) {
         return ($str !== '' && $phrase !== '')
             ? preg_replace('/(' . preg_quote($phrase, '/') . ')/i' . (true ? 'u' : ''), $tag_open . '\\1' . $tag_close, $str)
             : $str;
+    }
+}
+
+// ------------------------------------------------------------------------
+
+if (!function_exists('highlight_keyword')) {
+    /**
+     * Keyword Highlighter
+     *
+     * Highlights a keyword within a text string
+     *
+     * @param string $string    the text string
+     * @param string $keyword   the phrase you'd like to highlight
+     * @param string $tag_open  the opening tag to precede the phrase with
+     * @param string $tag_close the closing tag to end the phrase with
+     *
+     * @return    string
+     */
+    function highlight_keyword($string, $keyword, $tag_open = '<mark>', $tag_close = '</mark>')
+    {
+        return \nguyenanhung\Libraries\Text\TextProcessor::highlightKeyword($string, $keyword, $tag_open, $tag_close);
     }
 }
 
@@ -372,19 +393,19 @@ if (!function_exists('convert_accented_characters')) {
         static $array_from, $array_to;
 
         if (!is_array($array_from)) {
-            $foreign_characters = [];
+            $foreign_characters = array();
             if (file_exists(__DIR__ . '/../data/foreign_chars.php')) {
                 $foreign_characters = include __DIR__ . '/../data/foreign_chars.php';
             }
             if (empty($foreign_characters) || !is_array($foreign_characters)) {
-                $array_from = [];
-                $array_to   = [];
+                $array_from = array();
+                $array_to = array();
 
                 return $str;
             }
 
             $array_from = array_keys($foreign_characters);
-            $array_to   = array_values($foreign_characters);
+            $array_to = array_values($foreign_characters);
         }
 
         return preg_replace($array_from, $array_to, $str);
@@ -421,11 +442,11 @@ if (!function_exists('word_wrap')) {
 
         // If the current word is surrounded by {unwrap} tags we'll
         // strip the entire chunk and replace it with a marker.
-        $unwrap = [];
+        $unwrap = array();
         if (preg_match_all('|\{unwrap\}(.+?)\{/unwrap\}|s', $str, $matches)) {
             for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
                 $unwrap[] = $matches[1][$i];
-                $str      = str_replace($matches[0][$i], '{{unwrapped' . $i . '}}', $str);
+                $str = str_replace($matches[0][$i], '{{unwrapped' . $i . '}}', $str);
             }
         }
 
@@ -484,10 +505,10 @@ if (!function_exists('ellipsize')) {
      *
      * This function will strip tags from a string, split it at its max_length and ellipsize
      *
-     * @param string    string to ellipsize
-     * @param int    max length of string
-     * @param mixed    int (1|0) or float, .5, .2, etc for position to split
-     * @param string    ellipsis ; Default '...'
+     * @param string $str        string to ellipsize
+     * @param int    $max_length max length of string
+     * @param mixed  $position   int (1|0) or float, .5, .2, etc for position to split
+     * @param string $ellipsis   ellipsis ; Default '...'
      *
      * @return    string    ellipsized string
      */
@@ -501,7 +522,7 @@ if (!function_exists('ellipsize')) {
             return $str;
         }
 
-        $beg      = mb_substr($str, 0, floor($max_length * $position));
+        $beg = mb_substr($str, 0, floor($max_length * $position));
         $position = ($position > 1) ? 1 : $position;
 
         if ($position === 1) {
