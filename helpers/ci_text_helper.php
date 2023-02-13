@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ALL */
 /**
  * CodeIgniter
  *
@@ -53,13 +53,13 @@ if (!function_exists('word_limiter')) {
      *
      * Limits a string to X number of words.
      *
-     * @param string
-     * @param int
-     * @param string    the end character. Usually an ellipsis
+     * @param string $str
+     * @param int    $limit
+     * @param string $end_char the end character. Usually an ellipsis
      *
      * @return    string
      */
-    function word_limiter($str, $limit = 100, $end_char = '&#8230;'): string
+    function word_limiter($str, $limit = 100, $end_char = '&#8230;')
     {
         if (trim($str) === '') {
             return $str;
@@ -84,13 +84,13 @@ if (!function_exists('character_limiter')) {
      * Limits the string based on the character count.  Preserves complete words
      * so the character count may not be exactly as specified.
      *
-     * @param string
-     * @param int
-     * @param string    the end character. Usually an ellipsis
+     * @param string $str
+     * @param int    $n
+     * @param string $end_char the end character. Usually an ellipsis
      *
      * @return    string
      */
-    function character_limiter($str, $n = 500, $end_char = '&#8230;'): string
+    function character_limiter($str, $n = 500, $end_char = '&#8230;')
     {
         if (mb_strlen($str) < $n) {
             return $str;
@@ -130,13 +130,13 @@ if (!function_exists('ascii_to_entities')) {
      *
      * @return    string
      */
-    function ascii_to_entities(string $str): string
+    function ascii_to_entities($str)
     {
         $out = '';
         $length = defined('MB_OVERLOAD_STRING')
             ? mb_strlen($str, '8bit') - 1
             : strlen($str) - 1;
-        for ($i = 0, $count = 1, $temp = []; $i <= $length; $i++) {
+        for ($i = 0, $count = 1, $temp = array(); $i <= $length; $i++) {
             $ordinal = ord($str[$i]);
 
             if ($ordinal < 128) {
@@ -164,7 +164,7 @@ if (!function_exists('ascii_to_entities')) {
 
                     $out .= '&#' . $number . ';';
                     $count = 1;
-                    $temp = [];
+                    $temp = array();
                 } // If this is the last iteration, just output whatever we have
                 elseif ($i === $length) {
                     $out .= '&#' . implode(';', $temp) . ';';
@@ -184,12 +184,12 @@ if (!function_exists('entities_to_ascii')) {
      *
      * Converts character entities back to ASCII
      *
-     * @param string
-     * @param bool
+     * @param string $str
+     * @param bool   $all
      *
      * @return    string
      */
-    function entities_to_ascii($str, $all = true): string
+    function entities_to_ascii($str, $all = true)
     {
         if (preg_match_all('/\&#(\d+)\;/', $str, $matches)) {
             for ($i = 0, $s = count($matches[0]); $i < $s; $i++) {
@@ -233,13 +233,13 @@ if (!function_exists('word_censor')) {
      * matched words will be converted to #### or to the replacement
      * word you've submitted.
      *
-     * @param string    the text string
-     * @param string    the array of censored words
-     * @param string    the optional replacement value
+     * @param string|array $str         the text string
+     * @param string|array $censored    the array of censored words
+     * @param string       $replacement the optional replacement value
      *
      * @return    string
      */
-    function word_censor($str, $censored, $replacement = ''): string
+    function word_censor($str, $censored, $replacement = '')
     {
         if (!is_array($censored)) {
             return $str;
@@ -287,11 +287,11 @@ if (!function_exists('highlight_code')) {
      *
      * Colorizes code strings
      *
-     * @param string    the text string
+     * @param string $str the text string
      *
      * @return    string
      */
-    function highlight_code($str): string
+    function highlight_code($str)
     {
         /* The highlight string function encodes and highlights
          * brackets so we need them to start raw.
@@ -344,12 +344,12 @@ if (!function_exists('highlight_phrase')) {
      *
      * @param string $str       the text string
      * @param string $phrase    the phrase you'd like to highlight
-     * @param string $tag_open  the openging tag to precede the phrase with
+     * @param string $tag_open  the opening tag to precede the phrase with
      * @param string $tag_close the closing tag to end the phrase with
      *
      * @return    string
      */
-    function highlight_phrase(string $str, string $phrase, string $tag_open = '<mark>', string $tag_close = '</mark>'): string
+    function highlight_phrase($str, $phrase, $tag_open = '<mark>', $tag_close = '</mark>')
     {
         return ($str !== '' && $phrase !== '')
             ? preg_replace('/(' . preg_quote($phrase, '/') . ')/i' . (true ? 'u' : ''), $tag_open . '\\1' . $tag_close, $str)
@@ -372,7 +372,7 @@ if (!function_exists('highlight_keyword')) {
      *
      * @return    string
      */
-    function highlight_keyword(string $string, string $keyword, string $tag_open = '<mark>', string $tag_close = '</mark>'): string
+    function highlight_keyword($string, $keyword, $tag_open = '<mark>', $tag_close = '</mark>')
     {
         return \nguyenanhung\Libraries\Text\TextProcessor::highlightKeyword($string, $keyword, $tag_open, $tag_close);
     }
@@ -388,18 +388,18 @@ if (!function_exists('convert_accented_characters')) {
      *
      * @return    string
      */
-    function convert_accented_characters(string $str): string
+    function convert_accented_characters($str)
     {
         static $array_from, $array_to;
 
         if (!is_array($array_from)) {
-            $foreign_characters = [];
+            $foreign_characters = array();
             if (file_exists(__DIR__ . '/../data/foreign_chars.php')) {
                 $foreign_characters = include __DIR__ . '/../data/foreign_chars.php';
             }
             if (empty($foreign_characters) || !is_array($foreign_characters)) {
-                $array_from = [];
-                $array_to = [];
+                $array_from = array();
+                $array_to = array();
 
                 return $str;
             }
@@ -427,7 +427,7 @@ if (!function_exists('word_wrap')) {
      *
      * @return    string
      */
-    function word_wrap(string $str, int $charlim = 76): string
+    function word_wrap($str, $charlim = 76)
     {
         // Set the character limit
         is_numeric($charlim) or $charlim = 76;
@@ -442,7 +442,7 @@ if (!function_exists('word_wrap')) {
 
         // If the current word is surrounded by {unwrap} tags we'll
         // strip the entire chunk and replace it with a marker.
-        $unwrap = [];
+        $unwrap = array();
         if (preg_match_all('|\{unwrap\}(.+?)\{/unwrap\}|s', $str, $matches)) {
             for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
                 $unwrap[] = $matches[1][$i];
@@ -505,14 +505,14 @@ if (!function_exists('ellipsize')) {
      *
      * This function will strip tags from a string, split it at its max_length and ellipsize
      *
-     * @param string    string to ellipsize
-     * @param int    max length of string
-     * @param mixed    int (1|0) or float, .5, .2, etc for position to split
-     * @param string    ellipsis ; Default '...'
+     * @param string $str        string to ellipsize
+     * @param int    $max_length max length of string
+     * @param mixed  $position   int (1|0) or float, .5, .2, etc for position to split
+     * @param string $ellipsis   ellipsis ; Default '...'
      *
      * @return    string    ellipsized string
      */
-    function ellipsize($str, $max_length, $position = 1, $ellipsis = '&hellip;'): string
+    function ellipsize($str, $max_length, $position = 1, $ellipsis = '&hellip;')
     {
         // Strip tags
         $str = trim(strip_tags($str));
@@ -532,5 +532,117 @@ if (!function_exists('ellipsize')) {
         }
 
         return $beg . $ellipsis . $end;
+    }
+}
+
+// ------------------------------------------------------------------------
+
+if (!function_exists('excerpt')) {
+    /**
+     * Excerpt.
+     *
+     * Allows to extract a piece of text surrounding a word or phrase.
+     *
+     * @param string $text     String to search the phrase
+     * @param string $phrase   Phrase that will be searched for.
+     * @param int    $radius   The amount of characters returned around the phrase.
+     * @param string $ellipsis Ending that will be appended
+     *
+     * @return string
+     *
+     * If no $phrase is passed, will generate an excerpt of $radius characters
+     * from the beginning of $text.
+     */
+    function excerpt($text, $phrase = null, $radius = 100, $ellipsis = '...')
+    {
+        return \nguyenanhung\Libraries\Text\TextProcessor::excerpt($text, $phrase, $radius, $ellipsis);
+    }
+}
+
+if (!function_exists('strip_slashes')) {
+    /**
+     * Strip Slashes - Removes slashes contained in a string or in an array
+     *
+     * @param mixed $str string or array
+     *
+     * @return mixed string or array
+     */
+    function strip_slashes($str)
+    {
+        if (!is_array($str)) {
+            return stripslashes($str);
+        }
+
+        foreach ($str as $key => $val) {
+            $str[$key] = strip_slashes($val);
+        }
+
+        return $str;
+    }
+}
+
+if (!function_exists('strip_quotes')) {
+    /**
+     * Strip Quotes
+     *
+     * Removes single and double quotes from a string
+     */
+    function strip_quotes($str)
+    {
+        return str_replace(array('"', "'"), '', $str);
+    }
+}
+
+if (!function_exists('quotes_to_entities')) {
+    /**
+     * Quotes to Entities
+     *
+     * Converts single and double quotes to entities
+     */
+    function quotes_to_entities($str)
+    {
+        return str_replace(array("\\'", '"', "'", '"'), array('&#39;', '&quot;', '&#39;', '&quot;'), $str);
+    }
+}
+
+if (!function_exists('reduce_double_slashes')) {
+    /**
+     * Reduce Double Slashes
+     *
+     * Converts double slashes in a string to a single slash,
+     * except those found in http://
+     *
+     * http://www.some-site.com//index.php
+     *
+     * becomes:
+     *
+     * http://www.some-site.com/index.php
+     */
+    function reduce_double_slashes($str)
+    {
+        return preg_replace('#(^|[^:])//+#', '\\1/', $str);
+    }
+}
+
+if (!function_exists('reduce_multiples')) {
+    /**
+     * Reduce Multiples
+     *
+     * Reduces multiple instances of a particular character.  Example:
+     *
+     * Fred, Bill,, Joe, Jimmy
+     *
+     * becomes:
+     *
+     * Fred, Bill, Joe, Jimmy
+     *
+     * @param string $character the character you wish to reduce
+     * @param bool   $trim      TRUE/FALSE - whether to trim the character from the beginning/end
+     */
+    function reduce_multiples($str, $character = ',', $trim = false)
+    {
+        $str = preg_replace('#' . preg_quote($character, '#') . '{2,}#', $character, $str);
+
+        return ($trim) ? trim($str, $character) : $str;
     }
 }
