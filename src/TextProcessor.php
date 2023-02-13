@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection ALL */
+
 /**
  * Project text-helper
  * Created by PhpStorm
@@ -34,7 +35,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          * @time  : 9/29/18 11:25
          *
          */
-        public static function wordLimiter(string $str = '', int $limit = 100, string $end_char = '&#8230;'): string
+        public static function wordLimiter($str = '', $limit = 100, $end_char = '&#8230;')
         {
             if (trim($str) === '') {
                 return $str;
@@ -61,7 +62,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          *
          * @return    string
          */
-        public static function wordWrap(string $str = '', int $charlim = 76): string
+        public static function wordWrap($str = '', $charlim = 76)
         {
             // Set the character limit
             is_numeric($charlim) or $charlim = 76;
@@ -76,7 +77,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
 
             // If the current word is surrounded by {unwrap} tags we'll
             // strip the entire chunk and replace it with a marker.
-            $unwrap = [];
+            $unwrap = array();
             $patternUnWrap = '|\{unwrap\}(.+?)\{/unwrap\}|s';
             if (preg_match_all($patternUnWrap, $str, $matches)) {
                 for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
@@ -143,9 +144,9 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          * @param string|array $censored    the array of censored words
          * @param string       $replacement the optional replacement value
          *
-         * @return    string
+         * @return    mixed|string
          */
-        public static function wordCensor(string $str = '', $censored = '', string $replacement = ''): string
+        public static function wordCensor($str = '', $censored = '', $replacement = '')
         {
             if (!is_array($censored)) {
                 return $str;
@@ -171,12 +172,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
                     $matches = $matches[1];
                     for ($i = count($matches) - 1; $i >= 0; $i--) {
                         $length = strlen($matches[$i][0]);
-                        $str = substr_replace(
-                            $str,
-                            str_repeat('#', $length),
-                            $matches[$i][1],
-                            $length
-                        );
+                        $str = substr_replace($str, str_repeat('#', $length), $matches[$i][1], $length);
                     }
                 }
             }
@@ -196,7 +192,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          *
          * @return    string
          */
-        public static function characterLimiter(string $str = '', int $n = 500, string $end_char = '&#8230;')
+        public static function characterLimiter($str = '', $n = 500, $end_char = '&#8230;')
         {
             if (mb_strlen($str) < $n) {
                 return $str;
@@ -232,13 +228,13 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          *
          * @return    string
          */
-        public static function asciiToEntities(string $str = ''): string
+        public static function asciiToEntities($str = '')
         {
             $out = '';
             $length = defined('MB_OVERLOAD_STRING')
                 ? mb_strlen($str, '8bit') - 1
                 : strlen($str) - 1;
-            for ($i = 0, $count = 1, $temp = []; $i <= $length; $i++) {
+            for ($i = 0, $count = 1, $temp = array(); $i <= $length; $i++) {
                 $ordinal = ord($str[$i]);
 
                 if ($ordinal < 128) {
@@ -266,7 +262,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
 
                         $out .= '&#' . $number . ';';
                         $count = 1;
-                        $temp = [];
+                        $temp = array();
                     } // If this is the last iteration, just output whatever we have
                     elseif ($i === $length) {
                         $out .= '&#' . implode(';', $temp) . ';';
@@ -287,7 +283,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          *
          * @return    string
          */
-        public static function entitiesToAscii(string $str = '', bool $all = true): string
+        public static function entitiesToAscii($str = '', $all = true)
         {
             $pattern = '/\&#(\d+)\;/';
             if (preg_match_all($pattern, $str, $matches)) {
@@ -330,7 +326,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          *
          * @return    string
          */
-        public static function highlightCode($str = ''): string
+        public static function highlightCode($str = '')
         {
             /* The highlight string function encodes and highlights
              * brackets so we need them to start raw.
@@ -384,7 +380,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          *
          * @return    string
          */
-        public static function highlightPhrase(string $str = '', string $phrase = '', string $tag_open = '<mark>', string $tag_close = '</mark>'): string
+        public static function highlightPhrase($str = '', $phrase = '', $tag_open = '<mark>', $tag_close = '</mark>')
         {
             define('UTF8_ENABLED', true);
 
@@ -405,7 +401,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          *
          * @return    string
          */
-        public static function highlightKeyword(string $string, string $keyword, string $tag_open = '<mark>', string $tag_close = '</mark>'): string
+        public static function highlightKeyword($string, $keyword, $tag_open = '<mark>', $tag_close = '</mark>')
         {
             $unwanted_array = array(
                 "Á" => "á", "À" => "à", "Ả" => "ả", "Ã" => "ã", "Ạ" => "ạ", "Ă" => "ă", "Ắ" => "ắ", "Ằ" => "ằ",
@@ -418,7 +414,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
                 //    "ế"=>"e","ắ"=>"a","V"=>"v"
             );
 
-            if (!empty($keyword)) {
+            if (isset($keyword) && !empty($keyword)) {
                 $text_search = str_replace('%', ' ', $keyword);
                 $arr_text_search = explode(" ", $text_search);
                 if ($arr_text_search[0] === '') {
@@ -458,7 +454,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          * @copyright: 713uk13m <dev@nguyenanhung.com>
          * @time     : 09/22/2021 35:20
          */
-        public static function ellipsize(string $str, int $max_length, $position = 1, $ellipsis = '&hellip;'): string
+        public static function ellipsize($str, $max_length, $position = 1, $ellipsis = '&hellip;')
         {
             // Strip tags
             $str = trim(strip_tags($str));
@@ -487,18 +483,18 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          *
          * @return    string
          */
-        public static function convertAccentedCharacters(string $str): string
+        public static function convertAccentedCharacters($str)
         {
             static $array_from, $array_to;
 
             if (!is_array($array_from)) {
-                $foreign_characters = [];
+                $foreign_characters = array();
                 if (file_exists(__DIR__ . '/../data/foreign_chars.php')) {
                     $foreign_characters = include __DIR__ . '/../data/foreign_chars.php';
                 }
                 if (empty($foreign_characters) || !is_array($foreign_characters)) {
-                    $array_from = [];
-                    $array_to = [];
+                    $array_from = array();
+                    $array_to = array();
 
                     return $str;
                 }
@@ -508,6 +504,137 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
             }
 
             return preg_replace($array_from, $array_to, $str);
+        }
+
+        /**
+         * Excerpt.
+         *
+         * Allows to extract a piece of text surrounding a word or phrase.
+         *
+         * @param string $text     String to search the phrase
+         * @param string $phrase   Phrase that will be searched for.
+         * @param int    $radius   The amount of characters returned around the phrase.
+         * @param string $ellipsis Ending that will be appended
+         *
+         * @return string
+         *
+         * If no $phrase is passed, will generate an excerpt of $radius characters
+         * from the beginning of $text.
+         */
+        public static function excerpt($text, $phrase = null, $radius = 100, $ellipsis = '...')
+        {
+            if (isset($phrase)) {
+                $phrasePos = stripos($text, $phrase);
+                $phraseLen = strlen($phrase);
+            } else {
+                $phrasePos = $radius / 2;
+                $phraseLen = 1;
+            }
+
+            $pre = explode(' ', substr($text, 0, $phrasePos));
+            $pos = explode(' ', substr($text, $phrasePos + $phraseLen));
+
+            $prev = ' ';
+            $post = ' ';
+            $count = 0;
+
+            foreach (array_reverse($pre) as $e) {
+                if ((strlen($e) + $count + 1) < $radius) {
+                    $prev = ' ' . $e . $prev;
+                }
+                $count = ++$count + strlen($e);
+            }
+
+            $count = 0;
+
+            foreach ($pos as $s) {
+                if ((strlen($s) + $count + 1) < $radius) {
+                    $post .= $s . ' ';
+                }
+                $count = ++$count + strlen($s);
+            }
+
+            $ellPre = $phrase ? $ellipsis : '';
+
+            return str_replace('  ', ' ', $ellPre . $prev . $phrase . $post . $ellipsis);
+        }
+
+        /**
+         * Strip Slashes - Removes slashes contained in a string or in an array
+         *
+         * @param mixed $str string or array
+         *
+         * @return mixed string or array
+         */
+        public static function stripSlashes($str)
+        {
+            if (!is_array($str)) {
+                return stripslashes($str);
+            }
+
+            foreach ($str as $key => $val) {
+                $str[$key] = static::stripSlashes($val);
+            }
+
+            return $str;
+        }
+
+        /**
+         * Strip Quotes
+         *
+         * Removes single and double quotes from a string
+         */
+        public static function stripQuotes($str)
+        {
+            return str_replace(array('"', "'"), '', $str);
+        }
+
+        /**
+         * Quotes to Entities
+         *
+         * Converts single and double quotes to entities
+         */
+        public static function quotesToEntities($str)
+        {
+            return str_replace(array("\\'", '"', "'", '"'), array('&#39;', '&quot;', '&#39;', '&quot;'), $str);
+        }
+
+        /**
+         * Reduce Double Slashes
+         *
+         * Converts double slashes in a string to a single slash,
+         * except those found in http://
+         *
+         * http://www.some-site.com//index.php
+         *
+         * becomes:
+         *
+         * http://www.some-site.com/index.php
+         */
+        public static function reduceDoubleSlashes($str)
+        {
+            return preg_replace('#(^|[^:])//+#', '\\1/', $str);
+        }
+
+        /**
+         * Reduce Multiples
+         *
+         * Reduces multiple instances of a particular character.  Example:
+         *
+         * Fred, Bill,, Joe, Jimmy
+         *
+         * becomes:
+         *
+         * Fred, Bill, Joe, Jimmy
+         *
+         * @param string $character the character you wish to reduce
+         * @param bool   $trim      TRUE/FALSE - whether to trim the character from the beginning/end
+         */
+        public static function reduceMultiples($str, $character = ',', $trim = false)
+        {
+            $str = preg_replace('#' . preg_quote($character, '#') . '{2,}#', $character, $str);
+
+            return ($trim) ? trim($str, $character) : $str;
         }
     }
 }
