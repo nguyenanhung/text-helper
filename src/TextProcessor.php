@@ -76,7 +76,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
 
             // If the current word is surrounded by {unwrap} tags we'll
             // strip the entire chunk and replace it with a marker.
-            $unwrap = [];
+            $unwrap = array();
             $patternUnWrap = '|\{unwrap\}(.+?)\{/unwrap\}|s';
             if (preg_match_all($patternUnWrap, $str, $matches)) {
                 for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
@@ -503,6 +503,137 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
             }
 
             return preg_replace($array_from, $array_to, $str);
+        }
+
+        /**
+         * Excerpt.
+         *
+         * Allows to extract a piece of text surrounding a word or phrase.
+         *
+         * @param string $text     String to search the phrase
+         * @param string $phrase   Phrase that will be searched for.
+         * @param int    $radius   The amount of characters returned around the phrase.
+         * @param string $ellipsis Ending that will be appended
+         *
+         * @return string
+         *
+         * If no $phrase is passed, will generate an excerpt of $radius characters
+         * from the beginning of $text.
+         */
+        public static function excerpt($text, $phrase = null, $radius = 100, $ellipsis = '...')
+        {
+            if (isset($phrase)) {
+                $phrasePos = stripos($text, $phrase);
+                $phraseLen = strlen($phrase);
+            } else {
+                $phrasePos = $radius / 2;
+                $phraseLen = 1;
+            }
+
+            $pre = explode(' ', substr($text, 0, $phrasePos));
+            $pos = explode(' ', substr($text, $phrasePos + $phraseLen));
+
+            $prev = ' ';
+            $post = ' ';
+            $count = 0;
+
+            foreach (array_reverse($pre) as $e) {
+                if ((strlen($e) + $count + 1) < $radius) {
+                    $prev = ' ' . $e . $prev;
+                }
+                $count = ++$count + strlen($e);
+            }
+
+            $count = 0;
+
+            foreach ($pos as $s) {
+                if ((strlen($s) + $count + 1) < $radius) {
+                    $post .= $s . ' ';
+                }
+                $count = ++$count + strlen($s);
+            }
+
+            $ellPre = $phrase ? $ellipsis : '';
+
+            return str_replace('  ', ' ', $ellPre . $prev . $phrase . $post . $ellipsis);
+        }
+
+        /**
+         * Strip Slashes - Removes slashes contained in a string or in an array
+         *
+         * @param mixed $str string or array
+         *
+         * @return mixed string or array
+         */
+        public static function stripSlashes($str)
+        {
+            if (!is_array($str)) {
+                return stripslashes($str);
+            }
+
+            foreach ($str as $key => $val) {
+                $str[$key] = static::stripSlashes($val);
+            }
+
+            return $str;
+        }
+
+        /**
+         * Strip Quotes
+         *
+         * Removes single and double quotes from a string
+         */
+        public static function stripQuotes($str)
+        {
+            return str_replace(array('"', "'"), '', $str);
+        }
+
+        /**
+         * Quotes to Entities
+         *
+         * Converts single and double quotes to entities
+         */
+        public static function quotesToEntities($str)
+        {
+            return str_replace(array("\\'", '"', "'", '"'), array('&#39;', '&quot;', '&#39;', '&quot;'), $str);
+        }
+
+        /**
+         * Reduce Double Slashes
+         *
+         * Converts double slashes in a string to a single slash,
+         * except those found in http://
+         *
+         * http://www.some-site.com//index.php
+         *
+         * becomes:
+         *
+         * http://www.some-site.com/index.php
+         */
+        public static function reduceDoubleSlashes($str)
+        {
+            return preg_replace('#(^|[^:])//+#', '\\1/', $str);
+        }
+
+        /**
+         * Reduce Multiples
+         *
+         * Reduces multiple instances of a particular character.  Example:
+         *
+         * Fred, Bill,, Joe, Jimmy
+         *
+         * becomes:
+         *
+         * Fred, Bill, Joe, Jimmy
+         *
+         * @param string $character the character you wish to reduce
+         * @param bool   $trim      TRUE/FALSE - whether to trim the character from the beginning/end
+         */
+        public static function reduceMultiples($str, $character = ',', $trim = false)
+        {
+            $str = preg_replace('#' . preg_quote($character, '#') . '{2,}#', $character, $str);
+
+            return ($trim) ? trim($str, $character) : $str;
         }
     }
 }

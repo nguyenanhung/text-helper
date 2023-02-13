@@ -534,3 +534,115 @@ if (!function_exists('ellipsize')) {
         return $beg . $ellipsis . $end;
     }
 }
+
+// ------------------------------------------------------------------------
+
+if (!function_exists('excerpt')) {
+    /**
+     * Excerpt.
+     *
+     * Allows to extract a piece of text surrounding a word or phrase.
+     *
+     * @param string $text     String to search the phrase
+     * @param string $phrase   Phrase that will be searched for.
+     * @param int    $radius   The amount of characters returned around the phrase.
+     * @param string $ellipsis Ending that will be appended
+     *
+     * @return string
+     *
+     * If no $phrase is passed, will generate an excerpt of $radius characters
+     * from the beginning of $text.
+     */
+    function excerpt($text, $phrase = null, $radius = 100, $ellipsis = '...')
+    {
+        return \nguyenanhung\Libraries\Text\TextProcessor::excerpt($text, $phrase, $radius, $ellipsis);
+    }
+}
+
+if (!function_exists('strip_slashes')) {
+    /**
+     * Strip Slashes - Removes slashes contained in a string or in an array
+     *
+     * @param mixed $str string or array
+     *
+     * @return mixed string or array
+     */
+    function strip_slashes($str)
+    {
+        if (!is_array($str)) {
+            return stripslashes($str);
+        }
+
+        foreach ($str as $key => $val) {
+            $str[$key] = strip_slashes($val);
+        }
+
+        return $str;
+    }
+}
+
+if (!function_exists('strip_quotes')) {
+    /**
+     * Strip Quotes
+     *
+     * Removes single and double quotes from a string
+     */
+    function strip_quotes($str)
+    {
+        return str_replace(array('"', "'"), '', $str);
+    }
+}
+
+if (!function_exists('quotes_to_entities')) {
+    /**
+     * Quotes to Entities
+     *
+     * Converts single and double quotes to entities
+     */
+    function quotes_to_entities($str)
+    {
+        return str_replace(array("\\'", '"', "'", '"'), array('&#39;', '&quot;', '&#39;', '&quot;'), $str);
+    }
+}
+
+if (!function_exists('reduce_double_slashes')) {
+    /**
+     * Reduce Double Slashes
+     *
+     * Converts double slashes in a string to a single slash,
+     * except those found in http://
+     *
+     * http://www.some-site.com//index.php
+     *
+     * becomes:
+     *
+     * http://www.some-site.com/index.php
+     */
+    function reduce_double_slashes($str)
+    {
+        return preg_replace('#(^|[^:])//+#', '\\1/', $str);
+    }
+}
+
+if (!function_exists('reduce_multiples')) {
+    /**
+     * Reduce Multiples
+     *
+     * Reduces multiple instances of a particular character.  Example:
+     *
+     * Fred, Bill,, Joe, Jimmy
+     *
+     * becomes:
+     *
+     * Fred, Bill, Joe, Jimmy
+     *
+     * @param string $character the character you wish to reduce
+     * @param bool   $trim      TRUE/FALSE - whether to trim the character from the beginning/end
+     */
+    function reduce_multiples($str, $character = ',', $trim = false)
+    {
+        $str = preg_replace('#' . preg_quote($character, '#') . '{2,}#', $character, $str);
+
+        return ($trim) ? trim($str, $character) : $str;
+    }
+}
