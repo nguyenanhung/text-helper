@@ -162,11 +162,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
             foreach ($censored as $badword) {
                 $badword = str_replace('\*', '\w*?', preg_quote($badword, '/'));
                 if ($replacement !== '') {
-                    $str = preg_replace(
-                        "/({$delim})(" . $badword . ")({$delim})/i",
-                        "\\1{$replacement}\\3",
-                        $str
-                    );
+                    $str = preg_replace("/({$delim})(" . $badword . ")({$delim})/i", "\\1{$replacement}\\3", $str);
                 } elseif (preg_match_all("/{$delim}(" . $badword . "){$delim}/i", $str, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
                     $matches = $matches[1];
                     for ($i = count($matches) - 1; $i >= 0; $i--) {
@@ -230,9 +226,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
         public static function asciiToEntities($str = '')
         {
             $out = '';
-            $length = defined('MB_OVERLOAD_STRING')
-                ? mb_strlen($str, '8bit') - 1
-                : strlen($str) - 1;
+            $length = defined('MB_OVERLOAD_STRING') ? mb_strlen($str, '8bit') - 1 : strlen($str) - 1;
             for ($i = 0, $count = 1, $temp = array(); $i <= $length; $i++) {
                 $ordinal = ord($str[$i]);
 
@@ -255,9 +249,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
                     $temp[] = $ordinal;
 
                     if (count($temp) === $count) {
-                        $number = ($count === 3)
-                            ? (($temp[0] % 16) * 4096) + (($temp[1] % 64) * 64) + ($temp[2] % 64)
-                            : (($temp[0] % 32) * 64) + ($temp[1] % 64);
+                        $number = ($count === 3) ? (($temp[0] % 16) * 4096) + (($temp[1] % 64) * 64) + ($temp[2] % 64) : (($temp[0] % 32) * 64) + ($temp[1] % 64);
 
                         $out .= '&#' . $number . ';';
                         $count = 1;
@@ -296,9 +288,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
                     } elseif ($digits < 2048) {
                         $out .= chr(192 + (($digits - ($digits % 64)) / 64)) . chr(128 + ($digits % 64));
                     } else {
-                        $out .= chr(224 + (($digits - ($digits % 4096)) / 4096))
-                                . chr(128 + ((($digits % 4096) - ($digits % 64)) / 64))
-                                . chr(128 + ($digits % 64));
+                        $out .= chr(224 + (($digits - ($digits % 4096)) / 4096)) . chr(128 + ((($digits % 4096) - ($digits % 64)) / 64)) . chr(128 + ($digits % 64));
                     }
 
                     $str = str_replace($matches[0][$i], $out, $str);
@@ -306,11 +296,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
             }
 
             if ($all) {
-                return str_replace(
-                    ['&amp;', '&lt;', '&gt;', '&quot;', '&apos;', '&#45;'],
-                    ['&', '<', '>', '"', "'", '-'],
-                    $str
-                );
+                return str_replace(['&amp;', '&lt;', '&gt;', '&quot;', '&apos;', '&#45;'], ['&', '<', '>', '"', "'", '-'], $str);
             }
 
             return $str;
@@ -334,37 +320,25 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
              * so they don't accidentally break the string out of PHP,
              * and thus, thwart the highlighting.
              */
-            $str = str_replace(
-                ['&lt;', '&gt;', '<?', '?>', '<%', '%>', '\\', '</script>'],
-                ['<', '>', 'phptagopen', 'phptagclose', 'asptagopen', 'asptagclose', 'backslashtmp', 'scriptclose'],
-                $str
-            );
+            $str = str_replace(['&lt;', '&gt;', '<?', '?>', '<%', '%>', '\\', '</script>'], ['<', '>', 'phptagopen', 'phptagclose', 'asptagopen', 'asptagclose', 'backslashtmp', 'scriptclose'], $str);
 
             // The highlight_string function requires that the text be surrounded
             // by PHP tags, which we will remove later
             $str = highlight_string('<?php ' . $str . ' ?>', true);
 
             // Remove our artificially added PHP, and the syntax highlighting that came with it
-            $str = preg_replace(
-                [
-                    '/<span style="color: #([A-Z0-9]+)">&lt;\?php(&nbsp;| )/i',
-                    '/(<span style="color: #[A-Z0-9]+">.*?)\?&gt;<\/span>\n<\/span>\n<\/code>/is',
-                    '/<span style="color: #[A-Z0-9]+"><\/span>/i'
-                ],
-                [
-                    '<span style="color: #$1">',
-                    "$1</span>\n</span>\n</code>",
-                    ''
-                ],
-                $str
-            );
+            $str = preg_replace([
+                                    '/<span style="color: #([A-Z0-9]+)">&lt;\?php(&nbsp;| )/i',
+                                    '/(<span style="color: #[A-Z0-9]+">.*?)\?&gt;<\/span>\n<\/span>\n<\/code>/is',
+                                    '/<span style="color: #[A-Z0-9]+"><\/span>/i'
+                                ], [
+                                    '<span style="color: #$1">',
+                                    "$1</span>\n</span>\n</code>",
+                                    ''
+                                ], $str);
 
             // Replace our markers back to PHP tags.
-            return str_replace(
-                ['phptagopen', 'phptagclose', 'asptagopen', 'asptagclose', 'backslashtmp', 'scriptclose'],
-                ['&lt;?', '?&gt;', '&lt;%', '%&gt;', '\\', '&lt;/script&gt;'],
-                $str
-            );
+            return str_replace(['phptagopen', 'phptagclose', 'asptagopen', 'asptagclose', 'backslashtmp', 'scriptclose'], ['&lt;?', '?&gt;', '&lt;%', '%&gt;', '\\', '&lt;/script&gt;'], $str);
         }
 
         /**
@@ -383,9 +357,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
         {
             define('UTF8_ENABLED', true);
 
-            return ($str !== '' && $phrase !== '')
-                ? preg_replace('/(' . preg_quote($phrase, '/') . ')/i' . (UTF8_ENABLED ? 'u' : ''), $tag_open . '\\1' . $tag_close, $str)
-                : $str;
+            return ($str !== '' && $phrase !== '') ? preg_replace('/(' . preg_quote($phrase, '/') . ')/i' . (UTF8_ENABLED ? 'u' : ''), $tag_open . '\\1' . $tag_close, $str) : $str;
         }
 
         /**
@@ -403,13 +375,64 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
         public static function highlightKeyword($string, $keyword, $tag_open = '<mark>', $tag_close = '</mark>')
         {
             $unwanted_array = array(
-                "Á" => "á", "À" => "à", "Ả" => "ả", "Ã" => "ã", "Ạ" => "ạ", "Ă" => "ă", "Ắ" => "ắ", "Ằ" => "ằ",
-                "Ặ" => "ặ", "Â" => "â", "ẩ" => "ẩ", "Ầ" => "ầ", "Ậ" => "Ậ", "Ẫ" => "ẫ", "Ấ" => "ấ", "Ê" => "ê", "Ế" => "ế",
-                "Ễ" => "ễ", "Ề" => "ề", "Ể" => "ể", "Ệ" => "Ệ", "Í" => "í", "Ị" => "ị", "Ỉ" => "ỉ", "Ì" => "ì", "Ĩ" => "ĩ",
-                "Ô" => "ô", "Ồ" => "ồ", "Ổ" => "ổ", "Ộ" => "ộ", "Ố" => "Ố", "Ỗ" => "ỗ", "Ò" => "ò", "Ó" => "ó", "Ỏ" => "ỏ",
-                "Ọ" => "ọ", "Õ" => "õ", "Ơ" => "ơ", "Ở" => "ở", "Ờ" => "ờ", "Ớ" => "ớ", "Ợ" => "ợ", "Ỡ" => "ỡ", "Ũ" => "u",
-                "Ù" => "ù", "Ú" => "ú", "Ủ" => "ủ", "Ụ" => "ụ", "Ư" => "ư", "Ử" => "ử", "Ữ" => "ữ", "Ừ" => "ừ",
-                "Ứ" => "Ứ", "Ỷ" => "ỷ", "Ý" => "ý", "Ỳ" => "ỳ", "Ỵ" => "y", "Ỹ" => "ỹ"
+                "Á" => "á",
+                "À" => "à",
+                "Ả" => "ả",
+                "Ã" => "ã",
+                "Ạ" => "ạ",
+                "Ă" => "ă",
+                "Ắ" => "ắ",
+                "Ằ" => "ằ",
+                "Ặ" => "ặ",
+                "Â" => "â",
+                "ẩ" => "ẩ",
+                "Ầ" => "ầ",
+                "Ậ" => "Ậ",
+                "Ẫ" => "ẫ",
+                "Ấ" => "ấ",
+                "Ê" => "ê",
+                "Ế" => "ế",
+                "Ễ" => "ễ",
+                "Ề" => "ề",
+                "Ể" => "ể",
+                "Ệ" => "Ệ",
+                "Í" => "í",
+                "Ị" => "ị",
+                "Ỉ" => "ỉ",
+                "Ì" => "ì",
+                "Ĩ" => "ĩ",
+                "Ô" => "ô",
+                "Ồ" => "ồ",
+                "Ổ" => "ổ",
+                "Ộ" => "ộ",
+                "Ố" => "Ố",
+                "Ỗ" => "ỗ",
+                "Ò" => "ò",
+                "Ó" => "ó",
+                "Ỏ" => "ỏ",
+                "Ọ" => "ọ",
+                "Õ" => "õ",
+                "Ơ" => "ơ",
+                "Ở" => "ở",
+                "Ờ" => "ờ",
+                "Ớ" => "ớ",
+                "Ợ" => "ợ",
+                "Ỡ" => "ỡ",
+                "Ũ" => "u",
+                "Ù" => "ù",
+                "Ú" => "ú",
+                "Ủ" => "ủ",
+                "Ụ" => "ụ",
+                "Ư" => "ư",
+                "Ử" => "ử",
+                "Ữ" => "ữ",
+                "Ừ" => "ừ",
+                "Ứ" => "Ứ",
+                "Ỷ" => "ỷ",
+                "Ý" => "ý",
+                "Ỳ" => "ỳ",
+                "Ỵ" => "y",
+                "Ỹ" => "ỹ"
                 //    "ế"=>"e","ắ"=>"a","V"=>"v"
             );
 
@@ -439,6 +462,40 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
 
             return $string;
         }
+
+        /**
+         * Function formatForHighlightKeyword
+         *
+         * @param $keyword
+         * @param $page
+         *
+         * @return mixed|string
+         * @author   : 713uk13m <dev@nguyenanhung.com>
+         * @copyright: 713uk13m <dev@nguyenanhung.com>
+         * @time     : 16/02/2023 40:27
+         */
+        public static function formatForHighlightKeyword($keyword, $page)
+        {
+            $keyword = trim($keyword);
+            if (empty($keyword)) {
+                return '';
+            }
+            $keyword = explode(" ", $keyword);
+            // nếu page khác null hoặc 1
+            if (count($keyword) > 1) {
+                if (strlen($keyword[count($keyword) - 1]) === 1) {
+                    $keyword[count($keyword) - 1] = "";
+                }
+                $keyword = implode('%', $keyword);
+            } elseif ($page !== null || $page >= 1) {
+                $keyword = $keyword[0];
+            } else {
+                $keyword = "%" . $keyword[0];
+            }
+
+            return $keyword;
+        }
+
 
         /**
          * Ellipsize String - This function will strip tags from a string, split it at its max_length and ellipsize
