@@ -133,9 +133,7 @@ if (!function_exists('ascii_to_entities')) {
     function ascii_to_entities($str)
     {
         $out = '';
-        $length = defined('MB_OVERLOAD_STRING')
-            ? mb_strlen($str, '8bit') - 1
-            : strlen($str) - 1;
+        $length = defined('MB_OVERLOAD_STRING') ? mb_strlen($str, '8bit') - 1 : strlen($str) - 1;
         for ($i = 0, $count = 1, $temp = array(); $i <= $length; $i++) {
             $ordinal = ord($str[$i]);
 
@@ -158,9 +156,7 @@ if (!function_exists('ascii_to_entities')) {
                 $temp[] = $ordinal;
 
                 if (count($temp) === $count) {
-                    $number = ($count === 3)
-                        ? (($temp[0] % 16) * 4096) + (($temp[1] % 64) * 64) + ($temp[2] % 64)
-                        : (($temp[0] % 32) * 64) + ($temp[1] % 64);
+                    $number = ($count === 3) ? (($temp[0] % 16) * 4096) + (($temp[1] % 64) * 64) + ($temp[2] % 64) : (($temp[0] % 32) * 64) + ($temp[1] % 64);
 
                     $out .= '&#' . $number . ';';
                     $count = 1;
@@ -202,9 +198,7 @@ if (!function_exists('entities_to_ascii')) {
                 } elseif ($digits < 2048) {
                     $out .= chr(192 + (($digits - ($digits % 64)) / 64)) . chr(128 + ($digits % 64));
                 } else {
-                    $out .= chr(224 + (($digits - ($digits % 4096)) / 4096))
-                            . chr(128 + ((($digits % 4096) - ($digits % 64)) / 64))
-                            . chr(128 + ($digits % 64));
+                    $out .= chr(224 + (($digits - ($digits % 4096)) / 4096)) . chr(128 + ((($digits % 4096) - ($digits % 64)) / 64)) . chr(128 + ($digits % 64));
                 }
 
                 $str = str_replace($matches[0][$i], $out, $str);
@@ -212,11 +206,7 @@ if (!function_exists('entities_to_ascii')) {
         }
 
         if ($all) {
-            return str_replace(
-                ['&amp;', '&lt;', '&gt;', '&quot;', '&apos;', '&#45;'],
-                ['&', '<', '>', '"', "'", '-'],
-                $str
-            );
+            return str_replace(['&amp;', '&lt;', '&gt;', '&quot;', '&apos;', '&#45;'], ['&', '<', '>', '"', "'", '-'], $str);
         }
 
         return $str;
@@ -256,21 +246,12 @@ if (!function_exists('word_censor')) {
         foreach ($censored as $badword) {
             $badword = str_replace('\*', '\w*?', preg_quote($badword, '/'));
             if ($replacement !== '') {
-                $str = preg_replace(
-                    "/({$delim})(" . $badword . ")({$delim})/i",
-                    "\\1{$replacement}\\3",
-                    $str
-                );
+                $str = preg_replace("/({$delim})(" . $badword . ")({$delim})/i", "\\1{$replacement}\\3", $str);
             } elseif (preg_match_all("/{$delim}(" . $badword . "){$delim}/i", $str, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
                 $matches = $matches[1];
                 for ($i = count($matches) - 1; $i >= 0; $i--) {
                     $length = strlen($matches[$i][0]);
-                    $str = substr_replace(
-                        $str,
-                        str_repeat('#', $length),
-                        $matches[$i][1],
-                        $length
-                    );
+                    $str = substr_replace($str, str_repeat('#', $length), $matches[$i][1], $length);
                 }
             }
         }
@@ -300,37 +281,25 @@ if (!function_exists('highlight_code')) {
          * so they don't accidentally break the string out of PHP,
          * and thus, thwart the highlighting.
          */
-        $str = str_replace(
-            ['&lt;', '&gt;', '<?', '?>', '<%', '%>', '\\', '</script>'],
-            ['<', '>', 'phptagopen', 'phptagclose', 'asptagopen', 'asptagclose', 'backslashtmp', 'scriptclose'],
-            $str
-        );
+        $str = str_replace(['&lt;', '&gt;', '<?', '?>', '<%', '%>', '\\', '</script>'], ['<', '>', 'phptagopen', 'phptagclose', 'asptagopen', 'asptagclose', 'backslashtmp', 'scriptclose'], $str);
 
         // The highlight_string function requires that the text be surrounded
         // by PHP tags, which we will remove later
         $str = highlight_string('<?php ' . $str . ' ?>', true);
 
         // Remove our artificially added PHP, and the syntax highlighting that came with it
-        $str = preg_replace(
-            [
-                '/<span style="color: #([A-Z0-9]+)">&lt;\?php(&nbsp;| )/i',
-                '/(<span style="color: #[A-Z0-9]+">.*?)\?&gt;<\/span>\n<\/span>\n<\/code>/is',
-                '/<span style="color: #[A-Z0-9]+"\><\/span>/i'
-            ],
-            [
-                '<span style="color: #$1">',
-                "$1</span>\n</span>\n</code>",
-                ''
-            ],
-            $str
-        );
+        $str = preg_replace([
+                                '/<span style="color: #([A-Z0-9]+)">&lt;\?php(&nbsp;| )/i',
+                                '/(<span style="color: #[A-Z0-9]+">.*?)\?&gt;<\/span>\n<\/span>\n<\/code>/is',
+                                '/<span style="color: #[A-Z0-9]+"\><\/span>/i'
+                            ], [
+                                '<span style="color: #$1">',
+                                "$1</span>\n</span>\n</code>",
+                                ''
+                            ], $str);
 
         // Replace our markers back to PHP tags.
-        return str_replace(
-            ['phptagopen', 'phptagclose', 'asptagopen', 'asptagclose', 'backslashtmp', 'scriptclose'],
-            ['&lt;?', '?&gt;', '&lt;%', '%&gt;', '\\', '&lt;/script&gt;'],
-            $str
-        );
+        return str_replace(['phptagopen', 'phptagclose', 'asptagopen', 'asptagclose', 'backslashtmp', 'scriptclose'], ['&lt;?', '?&gt;', '&lt;%', '%&gt;', '\\', '&lt;/script&gt;'], $str);
     }
 }
 
@@ -351,9 +320,7 @@ if (!function_exists('highlight_phrase')) {
      */
     function highlight_phrase($str, $phrase, $tag_open = '<mark>', $tag_close = '</mark>')
     {
-        return ($str !== '' && $phrase !== '')
-            ? preg_replace('/(' . preg_quote($phrase, '/') . ')/i' . (true ? 'u' : ''), $tag_open . '\\1' . $tag_close, $str)
-            : $str;
+        return ($str !== '' && $phrase !== '') ? preg_replace('/(' . preg_quote($phrase, '/') . ')/i' . (true ? 'u' : ''), $tag_open . '\\1' . $tag_close, $str) : $str;
     }
 }
 
@@ -375,6 +342,26 @@ if (!function_exists('highlight_keyword')) {
     function highlight_keyword($string, $keyword, $tag_open = '<mark>', $tag_close = '</mark>')
     {
         return \nguyenanhung\Libraries\Text\TextProcessor::highlightKeyword($string, $keyword, $tag_open, $tag_close);
+    }
+}
+
+// ------------------------------------------------------------------------
+
+if (!function_exists('format_keyword_for_highlight_keyword')) {
+    /**
+     * Function format_keyword_for_highlight_keyword
+     *
+     * @param $keyword
+     * @param $page
+     *
+     * @return mixed|string
+     * @author   : 713uk13m <dev@nguyenanhung.com>
+     * @copyright: 713uk13m <dev@nguyenanhung.com>
+     * @time     : 16/02/2023 41:34
+     */
+    function format_keyword_for_highlight_keyword($keyword, $page)
+    {
+        return \nguyenanhung\Libraries\Text\TextProcessor::formatForHighlightKeyword($keyword, $page);
     }
 }
 
@@ -559,6 +546,8 @@ if (!function_exists('excerpt')) {
     }
 }
 
+// ------------------------------------------------------------------------
+
 if (!function_exists('strip_slashes')) {
     /**
      * Strip Slashes - Removes slashes contained in a string or in an array
@@ -581,6 +570,8 @@ if (!function_exists('strip_slashes')) {
     }
 }
 
+// ------------------------------------------------------------------------
+
 if (!function_exists('strip_quotes')) {
     /**
      * Strip Quotes
@@ -593,6 +584,8 @@ if (!function_exists('strip_quotes')) {
     }
 }
 
+// ------------------------------------------------------------------------
+
 if (!function_exists('quotes_to_entities')) {
     /**
      * Quotes to Entities
@@ -604,6 +597,8 @@ if (!function_exists('quotes_to_entities')) {
         return str_replace(array("\\'", '"', "'", '"'), array('&#39;', '&quot;', '&#39;', '&quot;'), $str);
     }
 }
+
+// ------------------------------------------------------------------------
 
 if (!function_exists('reduce_double_slashes')) {
     /**
@@ -623,6 +618,8 @@ if (!function_exists('reduce_double_slashes')) {
         return preg_replace('#(^|[^:])//+#', '\\1/', $str);
     }
 }
+
+// ------------------------------------------------------------------------
 
 if (!function_exists('reduce_multiples')) {
     /**
