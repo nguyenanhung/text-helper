@@ -374,10 +374,6 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          */
         public static function highlightKeyword($string, $keyword, $tag_open = '<mark>', $tag_close = '</mark>')
         {
-            if (strpos($string, $keyword)) {
-                return highlight_phrase($string, $keyword, $tag_open, $tag_close);
-            }
-
             $unwanted_array = array(
                 "Á" => "á",
                 "À" => "à",
