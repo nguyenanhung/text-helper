@@ -374,6 +374,10 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          */
         public static function highlightKeyword($string, $keyword, $tag_open = '<mark>', $tag_close = '</mark>')
         {
+            if (strpos($string, $keyword)) {
+                return highlight_phrase($string, $keyword, $tag_open, $tag_close);
+            }
+
             $unwanted_array = array(
                 "Á" => "á",
                 "À" => "à",
@@ -435,7 +439,6 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
                 "Ỹ" => "ỹ"
                 //    "ế"=>"e","ắ"=>"a","V"=>"v"
             );
-
             if (isset($keyword) && !empty($keyword)) {
                 $text_search = str_replace('%', ' ', $keyword);
                 $arr_text_search = explode(" ", $text_search);
@@ -495,7 +498,6 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
 
             return $keyword;
         }
-
 
         /**
          * Ellipsize String - This function will strip tags from a string, split it at its max_length and ellipsize
