@@ -560,6 +560,11 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
                 $array_to = array_values($foreign_characters);
             }
 
+            if (is_null($str))
+            {
+                $str = '';
+            }
+
             return preg_replace($array_from, $array_to, $str);
         }
 
