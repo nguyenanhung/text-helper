@@ -1,4 +1,4 @@
-<?php /** @noinspection ALL */
+<?php
 
 /**
  * Project text-helper
@@ -43,7 +43,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
 
             preg_match('/^\s*+(?:\S++\s*+){1,' . (int) $limit . '}/', $str, $matches);
 
-            if (strlen($str) === strlen($matches[0])) {
+            if (mb_strlen($str) === mb_strlen($matches[0])) {
                 $end_char = '';
             }
 
@@ -71,7 +71,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
             $str = preg_replace('| +|', ' ', $str);
 
             // Standardize newlines
-            if (strpos($str, "\r") !== false) {
+            if (mb_strpos($str, "\r") !== false) {
                 $str = str_replace(["\r\n", "\r"], "\n", $str);
             }
 
@@ -167,7 +167,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
                 } elseif (preg_match_all("/{$delim}(" . $badword . "){$delim}/i", $str, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
                     $matches = $matches[1];
                     for ($i = count($matches) - 1; $i >= 0; $i--) {
-                        $length = strlen($matches[$i][0]);
+                        $length = mb_strlen($matches[$i][0]);
                         $str = substr_replace($str, str_repeat('#', $length), $matches[$i][1], $length);
                     }
                 }
@@ -450,12 +450,12 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
                 }
 
                 $str = strtr($string, $unwanted_array);
-                $str = strtolower($str);
+                $str = mb_strtolower($str);
                 for ($j = 0; $j <= count($arr_text_search) - 1; $j++) {
-                    $ki_tu_can_tim_convert = strtolower(strtr($arr_text_search[$j], $unwanted_array));
-                    if (stripos($str, strtolower($ki_tu_can_tim_convert)) > 0) {
-                        $ki_tu_chuoi_can_xu_ly = substr($string, stripos($string, $ki_tu_can_tim_convert), strlen($arr_text_search[$j]));
-                        if (strpos($tag_open, $ki_tu_chuoi_can_xu_ly) === false || strpos($tag_close, $ki_tu_chuoi_can_xu_ly) === false) {
+                    $ki_tu_can_tim_convert = mb_strtolower(strtr($arr_text_search[$j], $unwanted_array));
+                    if (mb_stripos($str, mb_strtolower($ki_tu_can_tim_convert)) > 0) {
+                        $ki_tu_chuoi_can_xu_ly = substr($string, mb_stripos($string, $ki_tu_can_tim_convert), mb_strlen($arr_text_search[$j]));
+                        if (mb_strpos($tag_open, $ki_tu_chuoi_can_xu_ly) === false || mb_strpos($tag_close, $ki_tu_chuoi_can_xu_ly) === false) {
                             $string = str_replace($ki_tu_chuoi_can_xu_ly, $tag_open . $ki_tu_chuoi_can_xu_ly . $tag_close, $string);
                         }
                     }
@@ -485,7 +485,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
             $keyword = explode(" ", $keyword);
             // nếu page khác null hoặc 1
             if (count($keyword) > 1) {
-                if (strlen($keyword[count($keyword) - 1]) === 1) {
+                if (mb_strlen($keyword[count($keyword) - 1]) === 1) {
                     $keyword[count($keyword) - 1] = "";
                 }
                 $keyword = implode('%', $keyword);
@@ -560,8 +560,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
                 $array_to = array_values($foreign_characters);
             }
 
-            if (is_null($str))
-            {
+            if (is_null($str)) {
                 $str = '';
             }
 
@@ -586,34 +585,34 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
         public static function excerpt($text, $phrase = null, $radius = 100, $ellipsis = '...')
         {
             if (isset($phrase)) {
-                $phrasePos = stripos($text, $phrase);
-                $phraseLen = strlen($phrase);
+                $phrasePos = mb_stripos($text, $phrase);
+                $phraseLen = mb_strlen($phrase);
             } else {
                 $phrasePos = $radius / 2;
                 $phraseLen = 1;
             }
 
-            $pre = explode(' ', substr($text, 0, $phrasePos));
-            $pos = explode(' ', substr($text, $phrasePos + $phraseLen));
+            $pre = explode(' ', mb_substr($text, 0, $phrasePos));
+            $pos = explode(' ', mb_substr($text, $phrasePos + $phraseLen));
 
             $prev = ' ';
             $post = ' ';
             $count = 0;
 
             foreach (array_reverse($pre) as $e) {
-                if ((strlen($e) + $count + 1) < $radius) {
+                if ((mb_strlen($e) + $count + 1) < $radius) {
                     $prev = ' ' . $e . $prev;
                 }
-                $count = ++$count + strlen($e);
+                $count = ++$count + mb_strlen($e);
             }
 
             $count = 0;
 
             foreach ($pos as $s) {
-                if ((strlen($s) + $count + 1) < $radius) {
+                if ((mb_strlen($s) + $count + 1) < $radius) {
                     $post .= $s . ' ';
                 }
-                $count = ++$count + strlen($s);
+                $count = ++$count + mb_strlen($s);
             }
 
             $ellPre = $phrase ? $ellipsis : '';
