@@ -67,7 +67,7 @@ if (!function_exists('word_limiter')) {
 
         preg_match('/^\s*+(?:\S++\s*+){1,' . (int) $limit . '}/', $str, $matches);
 
-        if (strlen($str) === strlen($matches[0])) {
+        if (mb_strlen($str) === mb_strlen($matches[0])) {
             $end_char = '';
         }
 
@@ -250,7 +250,7 @@ if (!function_exists('word_censor')) {
             } elseif (preg_match_all("/{$delim}(" . $badword . "){$delim}/i", $str, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
                 $matches = $matches[1];
                 for ($i = count($matches) - 1; $i >= 0; $i--) {
-                    $length = strlen($matches[$i][0]);
+                    $length = mb_strlen($matches[$i][0]);
                     $str = substr_replace($str, str_repeat('#', $length), $matches[$i][1], $length);
                 }
             }
@@ -428,7 +428,7 @@ if (!function_exists('word_wrap')) {
         $str = preg_replace('| +|', ' ', $str);
 
         // Standardize newlines
-        if (strpos($str, "\r") !== false) {
+        if (mb_strpos($str, "\r") !== false) {
             $str = str_replace(["\r\n", "\r"], "\n", $str);
         }
 
