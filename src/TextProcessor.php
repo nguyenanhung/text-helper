@@ -375,7 +375,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          */
         public static function highlightKeyword($string, $keyword, $tag_open = '<mark>', $tag_close = '</mark>')
         {
-            if (mb_strpos($string, $keyword)) {
+            if (strpos($string, $keyword)) {
                 return self::highlightPhrase($string, $keyword, $tag_open, $tag_close);
             }
 
@@ -450,12 +450,12 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
                 }
 
                 $str = strtr($string, $unwanted_array);
-                $str = mb_strtolower($str);
+                $str = strtolower($str);
                 for ($j = 0; $j <= count($arr_text_search) - 1; $j++) {
-                    $ki_tu_can_tim_convert = mb_strtolower(strtr($arr_text_search[$j], $unwanted_array));
-                    if (mb_stripos($str, mb_strtolower($ki_tu_can_tim_convert)) > 0) {
-                        $ki_tu_chuoi_can_xu_ly = substr($string, mb_stripos($string, $ki_tu_can_tim_convert), mb_strlen($arr_text_search[$j]));
-                        if (mb_strpos($tag_open, $ki_tu_chuoi_can_xu_ly) === false || mb_strpos($tag_close, $ki_tu_chuoi_can_xu_ly) === false) {
+                    $ki_tu_can_tim_convert = strtolower(strtr($arr_text_search[$j], $unwanted_array));
+                    if (stripos($str, strtolower($ki_tu_can_tim_convert)) > 0) {
+                        $ki_tu_chuoi_can_xu_ly = substr($string, stripos($string, $ki_tu_can_tim_convert), strlen($arr_text_search[$j]));
+                        if (strpos($tag_open, $ki_tu_chuoi_can_xu_ly) === false || strpos($tag_close, $ki_tu_chuoi_can_xu_ly) === false) {
                             $string = str_replace($ki_tu_chuoi_can_xu_ly, $tag_open . $ki_tu_chuoi_can_xu_ly . $tag_close, $string);
                         }
                     }
@@ -485,7 +485,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
             $keyword = explode(" ", $keyword);
             // nếu page khác null hoặc 1
             if (count($keyword) > 1) {
-                if (mb_strlen($keyword[count($keyword) - 1]) === 1) {
+                if (strlen($keyword[count($keyword) - 1]) === 1) {
                     $keyword[count($keyword) - 1] = "";
                 }
                 $keyword = implode('%', $keyword);
