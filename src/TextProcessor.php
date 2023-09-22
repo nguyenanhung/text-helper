@@ -356,7 +356,7 @@ if (!class_exists(\nguyenanhung\Libraries\Text\TextProcessor::class)) {
          */
         public static function highlightPhrase($str = '', $phrase = '', $tag_open = '<mark>', $tag_close = '</mark>')
         {
-            define('UTF8_ENABLED', true);
+            defined('UTF8_ENABLED') or define('UTF8_ENABLED', true);
 
             return ($str !== '' && $phrase !== '') ? preg_replace('/(' . preg_quote($phrase, '/') . ')/i' . (UTF8_ENABLED ? 'u' : ''), $tag_open . '\\1' . $tag_close, $str) : $str;
         }
